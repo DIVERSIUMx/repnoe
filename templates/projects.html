@@ -1,0 +1,27 @@
+{% extends "dashboard.html" %}
+
+{% block content_dashboard %}
+<h1>Типо тут будут интернет вещи</h1>
+<a class="btn btn-primary" href="/projects/add">Создать</a>
+
+<table>
+	<thead>
+		<tr>
+			<th>Название</th>
+			<th>Описание</th>
+			<th>Управление</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for proj in projects %}
+		<tr>
+			<td>{{ proj.name }}</td>
+			<td>{{ proj.description }}</td>
+			<td>
+				<a class="btn btn-warning" href="/projects/redact/{{ proj.id }}">Изменить</a>
+				<a class="btn btn-danger" href="/projects/delete/{{ proj.id }}">Удалить</a>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

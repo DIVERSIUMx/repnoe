@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<nav class="sidenav">
+	<a href="/projects">Проекты</a>
+	<a href="/projects">Панели упр.</a>
+	<a href="/projects">Api-ключи</a>
+	<a href="/projects">Настройки пользователя</a>
+</nav>
+<div class="main-dashboard">
+	{% block content_dashboard %}{% endblock %}
+</div>
+{% endblock %}
