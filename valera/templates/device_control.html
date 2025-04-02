@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Управление: {{ device.type }}</h1>
+<div class="device-info">
+    <p>Статус: {{ device.status }}</p>
+    <p>Ключ: {{ device.key }}</p>
+</div>
+{% if device.type == 'Смартфон' %}
+<div class="commands">
+    <button onclick="sendCommand('vibrate')">Вибрация</button>
+    <button onclick="sendCommand('photo')">Сделать фото</button>
+</div>
+<script>
+function sendCommand(cmd) {
+    fetch("/api/send_command", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            device_id: {{ device.id }},
+            command: cmd
+        })
+    });
+}
+</script>
+{% endif %}
+{% endblock %}

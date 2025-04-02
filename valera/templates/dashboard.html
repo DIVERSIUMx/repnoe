@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Ваши устройства</h1>
+{% for device in devices %}
+    <div class="device-card">
+        <h3>{{ device.type }}</h3>
+        <p>{{ device.description }}</p>
+        <a href="{{ url_for('device_control', device_id=device.id) }}" class="btn">Управление</a>
+    </div>
+{% endfor %}
+{% endblock %}

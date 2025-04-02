@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Добавить устройство</h1>
+    <form method="POST">
+        <div class="form-group">
+            <label for="device_type">Тип устройства:</label>
+            <select id="device_type" name="device_type" class="form-control" required>
+                <option value="Смартфон">Смартфон</option>
+                <option value="Компьютер">Компьютер</option>
+                <option value="Raspberry Pi">Raspberry Pi</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание:</label>
+            <input type="text" id="description" name="description" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+    </form>
+</div>
+{% endblock %}
