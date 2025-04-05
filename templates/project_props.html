@@ -1,0 +1,62 @@
+{% extends "project_dashboard.html" %}
+
+
+{% block project_content %}
+<h1>Тут будут свойства</h1>
+<h2>Свойства вывода</h2>
+<table>
+	<thead>
+		<tr>
+			<th>Название</th>
+			<th>Тип</th>
+			<th>Значение</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for prop in in_props %}
+		<tr>
+			<td>{{ prop.name }}</td>
+			<td>{{ prop.get_type() }}</td>
+			<td>{{ prop.val }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<form method="post">
+	<h2>Свойства ввода</h2>
+	<table>
+		<thead>
+			<tr>
+				<th>Название</th>
+				<th>Тип</th>
+				<th>Значение</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for prop in con_props %}
+			<tr>
+				<td>{{ prop.name }}</td>
+				<td>{{ prop.get_type() }}</td>
+				{% if prop.get_type() == "bool" %}
+				{% if prop.val %}
+				<td><select name="{{ prop.name }}">
+						<option selected value="1">True</option>
+						<option value="0">False</option>
+					</select></td>
+				{% else %}
+				<td><select name="{{ prop.name }}">
+						<option value="1">True</option>
+						<option selected value="0">False</option>
+					</select></td>
+				{% endif %}
+				{% else %}
+				<td><input type="text" value="{{ prop.val }}" name="{{ prop.name }}"></td>
+				{% endif %}
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<button type="submit" class="btn btn-primary">Применить изменения</button>
+</form>
+
+{% endblock %}

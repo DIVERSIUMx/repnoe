@@ -3,6 +3,7 @@ import json
 from flask import Flask, abort, redirect, render_template, request
 from flask_login import LoginManager, current_user, login_user
 
+import properties
 from data import db_session
 from data.projects import Project
 from data.users import User
@@ -72,9 +73,58 @@ def add_project():
     return render_template("add_project.html", form=form, title="Создать проект")
 
 
-@app.route("/projects/redact/<int:id>")
-def project_redact(id):
-    return f"<h1>Вы радвктируете проект {id}"
+@app.route("/projects/redact/<int:id>", methods=["GET", "POST"])
+def redact_project(id):
+    if not current_user.is_authenticated:
+        return redirect("/login")
+    db_sess = db_session.create_session()
+    project = db_sess.query(Project).get(id)
+    if not project:
+        abort(404)
+    form = AddProject()
+    form.submit.label.text = "Применить"
+    if request.method == "GET":
+        form.name.data = project.name
+        form.description.data = project.description
+    else:
+        if form.validate_on_submit():
+            project.name = form.name.data
+            project.description = form.description.data
+            db_sess.commit()
+        else:
+            return render_template("project_dashboard.html", form=form, project=project, title=f'Проект "{project.name}"', message="Не все поля заполненны")
+    return render_template("project_dashboard.html", project=project, form=form, title=f'Проект "{project.name}"')
+
+
+@app.route("/projects/redact/<int:id>/props", methods=["GET", "POST"])
+def redact_props(id):
+    if not current_user.is_authenticated:
+        return redirect("/login")
+    db_sess = db_session.create_session()
+    project = db_sess.query(Project).get(id)
+    if not project:
+        return abort(404)
+
+    data = json.loads(project.properties)
+    in_props = properties.get_input_propertyes(data["input"])
+    con_props = properties.get_control_propertyes(data["control"])
+    if request.method == "GET":
+        return render_template("project_props.html", in_props=in_props, con_props=con_props, project=project)
+    else:
+        for prop in con_props:
+            pre_val = request.form[prop.name]
+            try:
+                if prop.type is bool:
+                    prop.val = pre_val == "1"
+                else:
+                    prop.val = prop.type(pre_val)
+            except ValueError:
+                return render_template("project_props.html", in_props=in_props, con_props=con_props, project=project, message="Не у всех полей введён верный формат данных")
+        else:
+            data["control"] = properties.to_data_control(con_props)
+            project.properties = json.dumps(data)
+            db_sess.commit()
+            return render_template("project_props.html", in_props=in_props, con_props=con_props, project=project)
 
 
 @login_manager.user_loader
