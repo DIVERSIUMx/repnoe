@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
+<nav class="sidenav">
+	<a href="/projects/redact/{{ project.id }}">Общие настройки</a>
+	<a href="/projects/redact/{{ project.id }}">Свойства</a>
+	<a href="/projects">Назад</a>
+</nav>
+<div class="main-dashboard">
+{% block project_content %}
 <div>
 	<form action="" method="post">
 		{{ form.hidden_tag() }}
@@ -23,7 +30,8 @@
 		{% endfor %}
 		</p>
 		<p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-		<div>{{message}}</div>
 	</form>
+</div>
+{% endblock %}
 </div>
 {% endblock %}
