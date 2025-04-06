@@ -11,7 +11,8 @@ class UserLogin(FlaskForm):
 
 class UpdateUser(FlaskForm):
     name = StringField("Имя пользователя", validators=[DataRequired()])
-    password = PasswordField("Пароль", validators=[DataRequired()])
+    password = PasswordField(
+        "Старый пароль для подтверждения", validators=[DataRequired()])
     new_password = PasswordField("Новый Пароль", validators=[DataRequired()])
     new_password_two = PasswordField(
         "Повторите Пароль", validators=[DataRequired()])

@@ -37,3 +37,40 @@ td,
 th {
 	border: 2px solid;
 }
+
+/* .login-center { */
+/* 	max-width: 300px; */
+/* 	max-height: 300px; */
+/* } */
+html,
+body {
+	height: 100%;
+	overflow: hidden;
+}
+
+.login-center {
+	min-height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.login-center form {
+	padding: 20px;
+	box-shadow: 0 0 3px;
+	border-radius: 15px;
+	min-width: 400px;
+}
+
+main {
+	padding: 20px;
+	height: 100%;
+}
+
+main h1 {
+	margin-bottom: 30px;
+}
+
+main h2 {
+	margin-top: 30px;
+}

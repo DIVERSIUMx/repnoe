@@ -2,9 +2,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div>
+<div class="login-center">
 	<form action="" , method="post">
 		{{ form.hidden_tag() }}
+		<h3 class="text-center">Вход</h3>
+		<br>
 		<p>
 			{{ form.name.label }}<br>
 			{{ form.name(class="form-control", type="text") }} <br>
