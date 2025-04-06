@@ -2,7 +2,7 @@ class InputProperty:
     ...
 
     def __init__(self, prop_type, val, name):
-        self.type = {"float": float, "int": int,
+        self.type = {"float": float, "int": int, "integer": int,
                      "bool": bool, "str": str}[prop_type]
         self.val = self.type(val)
         self.name = name
@@ -22,7 +22,7 @@ class ControlProperty:
     ...
 
     def __init__(self, prop_type, val, name):
-        self.type = {"float": float, "int": int,
+        self.type = {"float": float, "int": int, "integer": int,
                      "bool": bool, "str": str}[prop_type]
         self.val = self.type(val)
         self.name = name

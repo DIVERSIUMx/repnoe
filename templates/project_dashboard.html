@@ -3,7 +3,7 @@
 {% block content %}
 <nav class="sidenav">
 	<a href="/projects/redact/{{ project.id }}">Общие настройки</a>
-	<a href="/projects/redact/{{ project.id }}">Свойства</a>
+	<a href="/projects/redact/{{ project.id }}/props">Свойства</a>
 	<a href="/projects">Назад</a>
 </nav>
 <div class="main-dashboard">
@@ -29,7 +29,7 @@
 		</p>
 		{% endfor %}
 		</p>
-		<p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+		<p>{{ form.submit(type="submit", class="btn btn-primary") }} <a href="/projects/delete/{{ project.id }}" class="btn btn-danger">Удалить</a></p>
 	</form>
 </div>
 {% endblock %}

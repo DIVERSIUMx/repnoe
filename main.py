@@ -7,8 +7,10 @@ import properties
 from data import db_session
 from data.projects import Project
 from data.users import User
-from forms.login import UserLogin
+from forms.login import UpdateUser, UserLogin
 from forms.project import AddProject
+from forms.property import AddProperty
+from iot_api import blueprint
 
 app = Flask(__file__)
 app.config['SECRET_KEY'] = 'mega-sectret-key-ogo'
@@ -18,6 +20,7 @@ login_manager.init_app(app)
 
 
 def main():
+    app.register_blueprint(blueprint)
     db_session.global_init("./db/blob.db")
     db_sess = db_session.create_session()
     admin = db_sess.query(User).filter(User.permissions == -1).first()
@@ -46,6 +49,8 @@ def login():
     return abort(404)
 
 
+@app.route("/")
+@app.route("/index")
 @app.route("/projects")
 def projects():
     if not current_user.is_authenticated:
@@ -71,6 +76,19 @@ def add_project():
         db_sess.commit()
         return redirect(f"/projects/redact/{project.id}")
     return render_template("add_project.html", form=form, title="Создать проект")
+
+
+@app.route("/projects/delete/<int:id>")
+def del_project(id):
+    if not current_user.is_authenticated:
+        return redirect("/login")
+    db_sess = db_session.create_session()
+    project = db_sess.query(Project).get(id)
+    if not project:
+        abort(404)
+    db_sess.delete(project)
+    db_sess.commit()
+    return redirect("/projects")
 
 
 @app.route("/projects/redact/<int:id>", methods=["GET", "POST"])
@@ -125,6 +143,103 @@ def redact_props(id):
             project.properties = json.dumps(data)
             db_sess.commit()
             return render_template("project_props.html", in_props=in_props, con_props=con_props, project=project)
+
+
+@app.route("/projects/redact/<int:id>/props/add", methods=["GET", "POST"])
+def add_prop(id):
+    if not current_user.is_authenticated:
+        return redirect("/login")
+    db_sess = db_session.create_session()
+    project = db_sess.query(Project).get(id)
+    if not project:
+        return abort(404)
+    form = AddProperty()
+
+    if form.validate_on_submit():
+        data = json.loads(project.properties)
+        if form.prop_type.data == "input":
+            if form.name.data in ["project", "apikey"] or form.name.data in data["input"].keys():
+                return render_template("add_prop.html", form=form, message="Свойство с таким названием кже существует")
+            props = properties.get_input_propertyes(data["input"])
+            props.append(properties.InputProperty(form.prop_data_type.data,
+                         ("")if form.prop_data_type == "str" else (0), form.name.data))
+            data["input"] = properties.to_data_input(props)
+            project.properties = json.dumps(data)
+            db_sess.commit()
+        if form.prop_type.data == "control":
+            if form.name.data in data["control"].keys():
+                return render_template("add_prop.html", form=form, message="Свойство с таким названием кже существует")
+            props = properties.get_control_propertyes(data["control"])
+            props.append(properties.ControlProperty(form.prop_data_type.data,
+                         ("")if form.prop_data_type == "str" else (0), form.name.data))
+            data["control"] = properties.to_data_control(props)
+            project.properties = json.dumps(data)
+            db_sess.commit()
+        return redirect(f"/projects/redact/{id}/props")
+    return render_template("add_prop.html", form=form)
+
+
+@app.route("/projects/redact/<int:id>/props/delete/input/<prop_name>")
+def delete_prop_in(id, prop_name):
+    if not current_user.is_authenticated:
+        return redirect("/login")
+    db_sess = db_session.create_session()
+    project = db_sess.query(Project).get(id)
+    if not project:
+        return abort(404)
+    data = json.loads(project.properties)
+    if prop_name not in data["input"].keys():
+        return abort(404)
+    del data["input"][prop_name]
+
+    project.properties = json.dumps(data)
+    db_sess.commit()
+    return redirect(f"/projects/redact/{id}/props")
+
+
+@app.route("/projects/redact/<int:id>/props/delete/control/<prop_name>")
+def delete_prop_con(id, prop_name):
+    if not current_user.is_authenticated:
+        return redirect("/login")
+    db_sess = db_session.create_session()
+    project = db_sess.query(Project).get(id)
+    if not project:
+        return abort(404)
+    data = json.loads(project.properties)
+    if prop_name not in data["control"].keys():
+        return abort(404)
+    del data["control"][prop_name]
+
+    project.properties = json.dumps(data)
+    db_sess.commit()
+    return redirect(f"/projects/redact/{id}/props")
+
+
+@app.route("/user", methods=["GET", "POST"])
+def user_redact():
+    if not current_user.is_authenticated:
+        return redirect("/login")
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(current_user.id)
+    form = UpdateUser()
+    if request.method == "GET":
+        form.name.data = user.name
+    else:
+        if form.validate_on_submit():
+            if not user.check_password(form.password.data):
+                return render_template("update_user.html", title="Настройки пользователя", form=form, message="Неверный пароль")
+            # if db_sess.query(User).filter(User.name == form.name.data).get:
+            for u in db_sess.query(User).filter(User.name == form.name.data):
+                if user.id != u.id and user.name == form.name.data:
+                    return render_template("update_user.html", title="Настройки пользователя", form=form, message="Пользователь с таким именем уже существует")
+            if form.new_password.data != form.new_password_two.data:
+                print(form.new_password.data, form.new_password_two.data)
+                return render_template("update_user.html", title="Настройки пользователя", form=form, message="Пароли не совпадают")
+            user.name = form.name.data
+            user.set_password(form.new_password.data)
+            db_sess.commit()
+            return render_template("update_user.html", title="Настройки пользователя", form=form, message="Данные успешно изменены")
+    return render_template("update_user.html", title="Настройки пользователя", form=form)
 
 
 @login_manager.user_loader

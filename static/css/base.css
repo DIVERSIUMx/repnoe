@@ -26,3 +26,14 @@
 	margin-left: 160px;
 	padding: 0px 10px;
 }
+
+.list-projects {
+	margin-top: 2em;
+	/* border-collapse: collapse; */
+}
+
+table,
+td,
+th {
+	border: 2px solid;
+}
