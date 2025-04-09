@@ -1,4 +1,5 @@
 import json
+import os
 
 from flask import Flask, abort, redirect, render_template, request
 from flask_login import LoginManager, current_user, login_user
@@ -20,6 +21,8 @@ login_manager.init_app(app)
 
 
 def main():
+    if "db" not in os.listdir():
+        os.makedirs("db")
     app.register_blueprint(blueprint)
     db_session.global_init("./db/blob.db")
     db_sess = db_session.create_session()
